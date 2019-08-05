@@ -77,11 +77,42 @@ router.get('/courses', (req, res, next) => {
     Course.findAll({
         include: [
             {
-                model: User
+                model: User,
+                attributes:[
+                    "id", 
+                    "firstName", 
+                    "lastName",
+                    "emailAddress"
+                ]
             }
         ]
     }).then((courses) => {
-        res.json(courses)
+        res.json(courses);
+        res.status(200).end();
     })
 })
+
+//GET /course/:id
+router.get('/courses/:id',(req, res, next) => {
+    Course.findOne({
+        where: {
+            id: req.params.id
+        },
+        include: [
+            {
+                model: User,
+                attributes:[
+                    "id", 
+                    "firstName", 
+                    "lastName",
+                    "emailAddress"
+                ]
+            }
+        ]
+    }).then((course) => {
+        res.json(course);
+        res.status(200).end();
+    })
+})
+
 module.exports = router;

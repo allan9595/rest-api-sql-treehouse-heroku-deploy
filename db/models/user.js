@@ -1,7 +1,9 @@
 "use strict";
 const Sequelize = require('sequelize');
 
+const Course = require('./course.js');
 module.exports = (sequelize) => {
+
     class User extends Sequelize.Model {}
     User.init({
         // attributes
@@ -26,13 +28,16 @@ module.exports = (sequelize) => {
         }
     }, {
         sequelize,
-        modelName: 'user'
+        //modelName: 'user'
         // options
     });
-
-    User.association = (models) => {
-        User.hasMany(models.Course);
+    
+    User.associate = (models) => {
+        User.hasMany(models.Course, {
+            foreignKey: {
+                fieldName: "userId"
+            }
+        });
     }
-
     return User;
 }

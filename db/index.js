@@ -8,15 +8,10 @@ const sequelize = new Sequelize({
     storage: 'fsjstd-restapi.db'
 });
 
-const db = {
-    sequelize,
-    Sequelize,
-    models:{
-        
-    }
-}
-
 const models = {};
+
+
+// Import all of the models.
 fs
   .readdirSync(path.join(__dirname, 'models'))
   .forEach((file) => {
@@ -33,9 +28,10 @@ Object.keys(models).forEach((modelName) => {
   }
 });
 
-db.models.Course = require('./models/course.js')(sequelize);
-db.models.User = require('./models/user.js')(sequelize);
 
-
-
-module.exports = db;
+//module.exports = db;
+module.exports = {
+  sequelize,
+  Sequelize,
+  models,
+};
