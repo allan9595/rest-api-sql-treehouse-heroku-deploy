@@ -8,25 +8,23 @@ const {Course, User} = db.models;
 const auth = require('basic-auth');
 //auth middleware 
 const authUser = (req, res, next) => {
-    const userReq = auth(req);
-    console.log(userReq)
-    if(userReq){
+    const credentials = auth(req);
+    if(credentials){
         User.findOne(
             {
                 where: {
-                    emailAddress: userReq.name
+                    emailAddress: credentials.name
                 }
             }
         ).then((user) => {
-           bcrypt.compare(userReq.pass, user.password, (err,res) => {
+           bcrypt.compare(credentials.pass, user.password, (err,res) => {
                if(res){
                    req.currentUser = user;
+                   next();
                }
            })
         })
-    }
-
-    next();
+    } 
 }
 //Create user
 router.post('/users', (req, res, next) => {
@@ -53,7 +51,37 @@ router.post('/users', (req, res, next) => {
 router.get('/users',authUser ,(req, res, next) => {
     const user = req.currentUser;
     res.json({
+        firstName: user.firstName,
+        lastName: user.lastName,
         emailAddress: user.emailAddress
+    })
+})
+
+//POST course 
+router.post('/courses', authUser, (req, res, next) => {
+    const user = req.currentUser;
+    const course = req.body;
+    Course.create({
+        userId: user.id,
+        title: course.title,
+        description: course.description,
+        estimatedTime: course.estimatedTime,
+        materialsNeeded: course.materialsNeeded
+    })
+    res.location = '/';
+    res.status(201).end();
+})
+
+//GET course
+router.get('/courses', (req, res, next) => {
+    Course.findAll({
+        include: [
+            {
+                model: User
+            }
+        ]
+    }).then((courses) => {
+        res.json(courses)
     })
 })
 module.exports = router;

@@ -6,23 +6,23 @@ module.exports = (sequelize) => {
     User.init({
         // attributes
         id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
         },
         firstName: {
-        type: Sequelize.STRING,
-        allowNull: false
+            type: Sequelize.STRING,
+            allowNull: false
         },
         lastName: {
-        type: Sequelize.STRING
+            type: Sequelize.STRING
         // allowNull defaults to true
         },
         emailAddress: {
-        type: Sequelize.STRING,
+            type: Sequelize.STRING,
         },
         password: {
-        type: Sequelize.STRING,
+            type: Sequelize.STRING,
         }
     }, {
         sequelize,
@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
         // options
     });
 
-    User.association = () => {
+    User.association = (models) => {
         User.hasMany(models.Course);
     }
 

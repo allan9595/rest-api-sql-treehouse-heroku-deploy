@@ -1,6 +1,6 @@
 "use strict";
 const Sequelize = require('sequelize');
-const User = require('./user.js')
+
 module.exports = (sequelize) => {
     class Course extends Sequelize.Model {}
     Course.init({
@@ -28,8 +28,8 @@ module.exports = (sequelize) => {
             allowNull: false
         },
         materialsNeeded: {
-        type: Sequelize.STRING,
-        allowNull: false
+            type: Sequelize.STRING,
+            allowNull: false
         }
     }, {
         sequelize,
@@ -37,7 +37,7 @@ module.exports = (sequelize) => {
         // options
     });
 
-    Course.association = () => {
+    Course.association = (models) => {
         Course.belongsTo(models.User);
     }
 

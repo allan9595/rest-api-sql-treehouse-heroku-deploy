@@ -25,9 +25,9 @@ db.sequelize
 
 
   // Note: using `force: true` will drop the table if it already exists
-  
+/*
 db.sequelize.sync({ force: true }).then(() => {
-  /*
+  
   User.create({
     firstName: "Joe",
     lastName: "Smith",
@@ -65,9 +65,9 @@ db.sequelize.sync({ force: true }).then(() => {
     })
   })
   
- */
+ 
 });
-
+*/
 
 
 // setup morgan which gives us http request logging
