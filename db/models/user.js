@@ -17,19 +17,19 @@ module.exports = (sequelize) => {
             allowNull: false
         },
         lastName: {
-            type: Sequelize.STRING
-        // allowNull defaults to true
+            type: Sequelize.STRING,
+            allowNull: false
         },
         emailAddress: {
             type: Sequelize.STRING,
+            allowNull: false
         },
         password: {
             type: Sequelize.STRING,
+            allowNull: false
         }
     }, {
-        sequelize,
-        //modelName: 'user'
-        // options
+        sequelize
     });
     
     User.associate = (models) => {

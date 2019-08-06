@@ -17,25 +17,25 @@ module.exports = (sequelize) => {
             references:{
                 model: "users",
                 key: 'id'
-        }
+            },
+            allowNull: false
         },
         title: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            allowNull: false
         },
         description: {
-            type: Sequelize.TEXT
+            type: Sequelize.TEXT,
+            allowNull: false
         },
         estimatedTime: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         materialsNeeded: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         }
     }, {
         sequelize 
-        // options
     });
     
     Course.associate = (models) => {

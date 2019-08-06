@@ -8,7 +8,6 @@ const {Course, User} = db.models;
 const auth = require('basic-auth');
 //auth middleware 
 const authUser = (req, res, next) => {
-    let message = null;
     const credentials = auth(req);
     if(credentials){
         User.findOne(
@@ -22,8 +21,6 @@ const authUser = (req, res, next) => {
             res.status(404).json({message: `${credentials.name} not found! ` })
            }else{
             bcrypt.compare(credentials.pass, user.password, (err,respond) => {
-                console.log(err);
-                console.log(respond)
                 if(respond){
                     req.currentUser = user;
                     next();
@@ -35,7 +32,9 @@ const authUser = (req, res, next) => {
             })
            }           
         })
-    } 
+    }else{
+        res.status(401).json({ message: 'Access Denied' }).end();
+    }
 }
 //Create user
 router.post('/users',[
@@ -47,7 +46,8 @@ router.post('/users',[
         .withMessage('Please provide a value for "lastName"'),
      check('emailAddress')
         .exists()
-        .withMessage('Please provide a value for "emailAddress"'),
+        .isEmail()
+        .withMessage('Invalid "emailAddress"'),
     check('password')
         .exists()
         .withMessage('Please provide a value for "password"')
@@ -60,22 +60,29 @@ router.post('/users',[
         // Return the validation errors to the client.
         res.status(400).json({ errors: errorMessages });
     }else {
-        const user = req.body;
-        // async way to has the passwd
-        bcrypt.genSalt(5,(err, salt) => {
-            bcrypt.hash(user.password, salt, (err, hash) => {
-                User.create({
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    emailAddress: user.emailAddress,
-                    password: hash
-                });
-            })
-        })
-
-
-        res.location = '/';
-        res.status(201).end(); //return a 201 status code and end the response
+        User.findOne({
+            where: {
+                emailAddress: req.body.emailAddress
+            }
+        }).then((user) => {
+            if(user){
+                res.status(409).json({error: 'User is already existed!'});
+            }else{
+                // async way to hash the passwd
+                bcrypt.genSalt(5,(err, salt) => {
+                    bcrypt.hash(req.body.password, salt, (err, hash) => {
+                        User.create({
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
+                            emailAddress: req.body.emailAddress,
+                            password: hash
+                        });
+                    })
+                })
+                res.location = '/';
+                res.status(201).end(); //return a 201 status code and end the response
+            }
+        })   
     }
 })
 
@@ -116,9 +123,12 @@ router.post('/courses', authUser, [
             description: course.description,
             estimatedTime: course.estimatedTime,
             materialsNeeded: course.materialsNeeded
+        }).then((course) => {
+            res.location = `/courses/${course.id}`;
+            res.status(201).end();
+        }).catch((err) => {
+            next(err);
         })
-        res.location = '/';
-        res.status(201).end();
     }
 })
 
@@ -144,8 +154,14 @@ router.get('/courses', (req, res, next) => {
             }
         ]
     }).then((courses) => {
-        res.json(courses);
-        res.status(200).end();
+        if(courses){
+            res.json(courses);
+            res.status(200).end();
+        }else{
+            res.status(404).json({err: 'no courses found!'}).end()
+        }
+    }).catch((err) => {
+        next(err);
     })
 })
 
@@ -155,6 +171,12 @@ router.get('/courses/:id',(req, res, next) => {
         where: {
             id: req.params.id
         },
+        attributes:[
+            "title",
+            "description",
+            "estimatedTime",
+            "materialsNeeded"
+        ],
         include: [
             {
                 model: User,
@@ -167,8 +189,14 @@ router.get('/courses/:id',(req, res, next) => {
             }
         ]
     }).then((course) => {
-        res.json(course);
-        res.status(200).end();
+        if(course){
+            res.json(course);
+            res.status(200).end();
+        }else{
+            res.status(404).json({err: 'no course found!'}).end()
+        }
+    }).catch((err) => {
+        next(err);
     })
 })
 
@@ -191,20 +219,24 @@ router.put('/courses/:id', authUser, [
         res.status(400).json({ errors: errorMessages });
         next();
     }else {
-        const user = req.currentUser;
         Course.findOne({
             where: {
                 id: req.params.id
             }
         }).then((course) => {
-            course.update({
-                title: req.body.title,
-                description: req.body.description,
-                estimatedTime: req.body.estimatedTime,
-                materialsNeeded: req.body.materialsNeeded
-            })
-        }).then(() => {
-            res.status(204).end();
+            if(course.userId === req.currentUser.id){
+                course.update({
+                    title: req.body.title,
+                    description: req.body.description,
+                    estimatedTime: req.body.estimatedTime,
+                    materialsNeeded: req.body.materialsNeeded
+                }) //check if current user is the user owns the course
+                res.status(204).end();
+            }else{
+                res.status(403).end()
+            }
+        }).catch((err) => {
+            next(err);
         })
     }
 })
@@ -217,9 +249,15 @@ router.delete('/courses/:id', authUser, (req, res, next) => {
             id: req.params.id
         }
     }).then((course) => {
-        course.destroy();
-    }).then(() => {
-        res.status(204).end();
+        if(course.userId === req.currentUser.id){
+            course.destroy();
+            res.status(204).end();
+        }
+        else{
+            res.status(403).end()
+        }
+    }).catch((err) => {
+        next(err);
     })
 })
 module.exports = router;
