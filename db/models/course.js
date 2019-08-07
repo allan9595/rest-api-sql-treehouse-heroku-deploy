@@ -11,10 +11,11 @@ module.exports = (sequelize) => {
         },
         userId:{
             type: Sequelize.INTEGER,
+            /*
             references:{
-                model: "users",
+                model: 'users',
                 key: 'id'
-            },
+            },*/
             allowNull: false
         },
         title: {

@@ -4,7 +4,7 @@ const path = require('path');
 const config = require('../config');
 
 const Sequelize = require('sequelize');
-const { database, username, password } = config.db;
+const { username, password } = config.db;
 const sequelize = new Sequelize(
   process.env.URL, username, password, {
     dialect: 'postgres',
