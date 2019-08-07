@@ -6,13 +6,13 @@ const config = require('../config');
 const Sequelize = require('sequelize');
 const { database, username, password } = config.db;
 const sequelize = new Sequelize(
-  database, username, password, {
+  process.env.DATABASE_URL, username, password, {
     dialect: 'postgres',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || '5432',
     database: process.env.DB_NAME || 'database',
     username: process.env.DB_USERNAME || 'username',
-    password: process.env.DB_PASSWORD || 'password'
+    password: process.env.DB_PASSWORD || 'password',
   }
 );
 
