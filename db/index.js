@@ -1,12 +1,20 @@
 "use strict";
 const fs = require('fs');
 const path = require('path');
+const config = require('../config');
 
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: 'fsjstd-restapi.db'
-});
+const { database, username, password } = config.db;
+const sequelize = new Sequelize(
+  database, username, password, {
+    dialect: 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || '5432',
+    database: process.env.DB_NAME || 'database',
+    username: process.env.DB_USERNAME || 'username',
+    password: process.env.DB_PASSWORD || 'password'
+  }
+);
 
 const models = {};
 
