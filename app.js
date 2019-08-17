@@ -2,6 +2,7 @@
 
 // load modules
 require('dotenv').config();
+const cors = require('cors')
 const express = require('express');
 const morgan = require('morgan');
 const db = require('./db');
@@ -11,7 +12,7 @@ const {Course, User} = db.models;
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 // create the Express app
 const app = express();
-
+app.use(cors());
 // Setup request body JSON parsing.
 app.use(express.json());
 
